@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #fa243c;
+  --color-accent-dim: #c81f31;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-neutral-950 text-neutral-100 font-sans antialiased;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+}
