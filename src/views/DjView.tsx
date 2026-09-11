@@ -1,12 +1,40 @@
+import { ContextCard } from '@/components/dj/ContextCard'
+import { DjIdle } from '@/components/dj/DjIdle'
+import { DjNowPlaying } from '@/components/dj/DjNowPlaying'
+import { PhaseBanner } from '@/components/dj/PhaseBanner'
+import { SessionSummary } from '@/components/dj/SessionSummary'
+import { UpNextQueue } from '@/components/dj/UpNextQueue'
+import { useDjSession } from '@/state/DjSessionContext'
+
 export function DjView() {
+  const dj = useDjSession()
+
+  if (!dj.session) {
+    return <DjIdle onStart={dj.startSession} />
+  }
+
+  if (dj.session.status === 'ended') {
+    return <SessionSummary state={dj.session} onRestart={dj.startSession} />
+  }
+
   return (
-    <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">AI DJ</div>
-      <h1 className="mb-3 text-3xl font-bold text-neutral-50">Coming up next</h1>
-      <p className="max-w-md text-sm text-neutral-500">
-        The DJ engine and session view are built in later phases. This route is wired up so
-        navigation and the shell are complete.
-      </p>
+    <div className="flex h-full flex-col gap-6 overflow-y-auto pb-4">
+      {dj.currentPhase && (
+        <PhaseBanner phase={dj.currentPhase} transitionEvent={dj.lastTransitionEvent} />
+      )}
+      {dj.currentTrackId && (
+        <DjNowPlaying
+          trackId={dj.currentTrackId}
+          isSaved={dj.isSaved(dj.currentTrackId)}
+          onSave={dj.saveCurrent}
+        />
+      )}
+      {dj.currentCard && <ContextCard card={dj.currentCard} />}
+      <UpNextQueue
+        upcoming={dj.upcoming}
+        phases={dj.session.phases}
+        currentPhaseIndex={dj.session.currentPhaseIndex}
+      />
     </div>
   )
 }
