@@ -96,10 +96,7 @@ getContextCard(state, trackId): ContextCard
 getDebugSnapshot(state): DebugSnapshot
 ```
  
-`SessionState` must stay **JSON-serializable** (it round-trips through `localStorage`), so it cannot hold a closure. Two known items for whoever implements Phase 2:
- 
-- **RNG carry.** `SessionState` has no RNG field. Either store a numeric `rngCursor` and rebuild the generator by advancing it, or plan the full session up front and re-derive deterministically on replan. Pick one, document it, and make the determinism test prove it.
-- **`consecutiveSkipsInPhase`.** The field name says "consecutive"; the PRD rule is **two early skips within a phase**, not necessarily back-to-back. Implement the PRD rule and either rename the field or document the mismatch.
+`SessionState` must stay **JSON-serializable** (it round-trips through `localStorage`), so it cannot hold a closure. Resolved in Phase 2: `SessionState.rngCursor` is a numeric draw count, rebuilt into a generator on demand (see `src/dj/rng-cursor.ts`); the old `consecutiveSkipsInPhase` field is renamed `earlySkipsInPhase` and correctly counts non-adjacent early skips within a phase. See `PHASE_2_NOTES.md` for details.
 ### Tuning constants
  
 Put these in `src/dj/constants.ts` so the debug panel and docs can reference one place.
@@ -139,7 +136,7 @@ Phase-tag selection uses **weighted sampling** from the taste vector, not a dete
 ## Build phases
  
 1. **Shell** — ✅ complete. Sidebar, routing, Home/Library/Search/New/Radio, now-playing bar, catalog, procedural art, simulated playback with demo speed. `DjView` is a placeholder.
-2. **DJ engine** — `src/dj/` implementation + unit tests + a headless `dj:demo` script. No UI.
+2. **DJ engine** — ✅ complete. `src/dj/` (`constants.ts`, `rng-cursor.ts`, `taste.ts`, `phases.ts`, `pool.ts`, `reasons.ts`, `session.ts`, `index.ts`) with 27 passing unit tests and a headless `npm run dj:demo` script. No UI. Public API (`createSession`, `recordEvent`, `getContextCard`, `getDebugSnapshot`, `computeMetrics`) is exported from `src/dj/index.ts` only. See `PHASE_2_NOTES.md` for the full API, the RNG-cursor mechanism, and what Phase 3 needs to know.
 3. **DJ view (P0)** — hero entry, session start, now-playing context cards, visible phase transitions, upcoming queue, skip/save.
 4. **P1 + P2 seeding** — "Start from…" entry points, seed source surfaced in UI and in card attribution.
 5. **Debug panel + polish** — the PM panel (`src/components/debug/`), then transitions, empty states, and a check that every view reads well at 1280×800 for screen recording.

@@ -63,13 +63,53 @@ export type SessionState = {
   seed: number
   seedSource: SeedSource
   tasteVector: TasteVector
+  baseTasteVector: TasteVector
   phases: Phase[]
   currentPhaseIndex: number
   currentTrackIndex: number
   playedTrackIds: string[]
   tagWeightAdjustments: Partial<Record<TagId, number>>
   eventLog: SessionEvent[]
-  consecutiveSkipsInPhase: number
+  earlySkipsInPhase: number
   savedThisSession: string[]
   status: 'active' | 'ended'
+  rngCursor: number
+  scoring: Record<string, ScoredTrack>
+  libraryAtStart: string[]
+  substitutions: string[]
+  skipPositions: Record<string, number>
+}
+
+export type CreateSessionInput = {
+  seed: number
+  now: Date
+  seedSource?: SeedSource
+}
+
+// Input events to recordEvent — distinct from SessionEvent, which is the LOG entry.
+export type DJEvent =
+  | { type: 'trackStart'; trackId: string; atMs: number }
+  | { type: 'trackComplete'; trackId: string; atMs: number }
+  | { type: 'skip'; trackId: string; positionFraction: number; atMs: number }
+  | { type: 'save'; trackId: string; atMs: number }
+  | { type: 'endSession'; atMs: number }
+
+export type ContextCard = {
+  sourceLabel: "Editor's note" | 'Album context' | 'Why this pick'
+  editorialText: string | null
+  reasonLine: string
+  attribution?: string
+}
+
+export type DebugSnapshot = {
+  seed: number
+  rngCursor: number
+  seedSource: SeedSource
+  tasteVector: TasteVector
+  baseTasteVector: TasteVector
+  phases: Phase[]
+  sessionPoolRatio: { library: number; tasteMatch: number; trending: number }
+  substitutions: string[]
+  eventLog: SessionEvent[]
+  metrics: SessionMetrics
 }

@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "dj:demo": "vitest run src/dj/__tests__/demo.session.test.ts --reporter=verbose"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

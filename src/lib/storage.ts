@@ -1,4 +1,4 @@
-import type { SeedSource } from '@/dj/types'
+import type { SeedSource, SessionState } from '@/dj/types'
 
 const PREFIX = 'muse:'
 const SCHEMA_VERSION = 1
@@ -55,4 +55,12 @@ export function loadDemoSpeed(): DemoSpeed {
 
 export function saveDemoSpeed(value: DemoSpeed): void {
   writeJson('demoSpeed', value)
+}
+
+export function loadSessionState(): SessionState | null {
+  return readJson<SessionState>('djSession')
+}
+
+export function saveSessionState(state: SessionState): void {
+  writeJson('djSession', state)
 }
