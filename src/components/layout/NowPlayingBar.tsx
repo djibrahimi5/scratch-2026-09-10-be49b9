@@ -38,8 +38,9 @@ export function NowPlayingBar() {
             <button
               onClick={player.skipCurrent}
               disabled={!track}
-              className="text-xs font-semibold text-neutral-400 hover:text-neutral-100 disabled:opacity-30"
+              aria-label="Skip track"
               title="Skip"
+              className="text-xs font-semibold text-neutral-400 hover:text-neutral-100 disabled:opacity-30"
             >
               Skip ▶▶
             </button>
@@ -47,6 +48,8 @@ export function NowPlayingBar() {
           <button
             onClick={player.togglePlay}
             disabled={!track}
+            aria-label={player.isPlaying ? 'Pause' : 'Play'}
+            title={player.isPlaying ? 'Pause' : 'Play'}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-100 text-neutral-950 disabled:opacity-30"
           >
             {player.isPlaying ? '❚❚' : '▶'}

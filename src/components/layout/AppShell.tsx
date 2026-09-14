@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { NowPlayingBar } from './NowPlayingBar'
 import { ConceptBadge } from './ConceptBadge'
+import { DebugPanel } from '@/components/debug/DebugPanel'
 
 export function AppShell() {
   return (
@@ -14,6 +15,7 @@ export function AppShell() {
       </div>
       <NowPlayingBar />
       <ConceptBadge />
+      <DebugPanel />
     </div>
   )
 }

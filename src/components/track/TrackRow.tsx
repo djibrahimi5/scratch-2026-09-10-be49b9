@@ -39,10 +39,11 @@ export function TrackRow({ trackId, index, isPlaying, isSaved, onPlay, onSave }:
       {onSave && (
         <button
           onClick={onSave}
+          aria-label={isSaved ? 'In Library' : 'Save to Library'}
+          title={isSaved ? 'In Library' : 'Save to Library'}
           className={`shrink-0 text-xs opacity-0 transition-opacity group-hover:opacity-100 ${
             isSaved ? 'text-accent opacity-100' : 'text-neutral-400 hover:text-neutral-100'
           }`}
-          title={isSaved ? 'In Library' : 'Save to Library'}
         >
           {isSaved ? '✓ Saved' : '+ Save'}
         </button>

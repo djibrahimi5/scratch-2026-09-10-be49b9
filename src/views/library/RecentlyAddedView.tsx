@@ -7,6 +7,10 @@ export function RecentlyAddedView() {
   const player = usePlayer()
   const recent = [...library.libraryIds].reverse()
 
+  if (recent.length === 0) {
+    return <p className="text-sm text-neutral-500">Your library is empty.</p>
+  }
+
   return (
     <div className="max-w-2xl">
       {recent.map((trackId) => (

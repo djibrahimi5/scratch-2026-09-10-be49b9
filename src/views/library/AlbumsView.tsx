@@ -25,6 +25,10 @@ export function AlbumsView() {
     if (track) player.play(track.id)
   }
 
+  if (albums.length === 0) {
+    return <p className="text-sm text-neutral-500">Your library is empty.</p>
+  }
+
   return (
     <div className="flex flex-wrap gap-6">
       {albums.map((album) => {

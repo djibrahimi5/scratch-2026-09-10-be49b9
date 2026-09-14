@@ -29,7 +29,7 @@ export function DjView() {
           onSave={dj.saveCurrent}
         />
       )}
-      {dj.currentCard && <ContextCard card={dj.currentCard} />}
+      {dj.currentCard && <ContextCard key={dj.currentTrackId} card={dj.currentCard} />}
       <UpNextQueue
         upcoming={dj.upcoming}
         phases={dj.session.phases}

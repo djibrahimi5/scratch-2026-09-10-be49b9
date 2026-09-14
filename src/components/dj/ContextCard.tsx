@@ -9,7 +9,7 @@ type ContextCardProps = {
 // text about the absence of a note, not commentary about the music — and nothing else.
 export function ContextCard({ card }: ContextCardProps) {
   return (
-    <div className="rounded-xl border border-white/5 bg-neutral-900 p-5">
+    <div className="dj-fade-in rounded-xl border border-white/5 bg-neutral-900 p-5">
       <div className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
         {card.sourceLabel}
       </div>

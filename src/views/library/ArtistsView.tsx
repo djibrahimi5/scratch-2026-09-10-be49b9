@@ -18,6 +18,10 @@ export function ArtistsView() {
       .sort((a, b) => a.name.localeCompare(b.name))
   }, [library.libraryIds])
 
+  if (artists.length === 0) {
+    return <p className="text-sm text-neutral-500">Your library is empty.</p>
+  }
+
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
       {artists.map((artist) => {

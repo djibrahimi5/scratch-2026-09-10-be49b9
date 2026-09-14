@@ -1,17 +1,22 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ARTISTS, CATALOG, FRIEND, PLAYLISTS } from '@/data'
 import { useDjSession } from '@/state/DjSessionContext'
 import type { SeedSource } from '@/dj'
 
 type SeedPickerProps = {
+  isOpen: boolean
   onClose: () => void
 }
 
 const SONG_RESULT_LIMIT = 8
 
-export function SeedPicker({ onClose }: SeedPickerProps) {
+// Always mounted (never conditionally rendered by the parent) so enter/exit transitions have
+// something to animate — visibility is entirely driven by `isOpen` via opacity/transform classes.
+export function SeedPicker({ isOpen, onClose }: SeedPickerProps) {
   const dj = useDjSession()
   const [songQuery, setSongQuery] = useState('')
+  const inputRef = useRef<HTMLInputElement>(null)
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null)
 
   const songResults = useMemo(() => {
     const q = songQuery.trim().toLowerCase()
@@ -24,20 +29,55 @@ export function SeedPicker({ onClose }: SeedPickerProps) {
       .slice(0, SONG_RESULT_LIMIT)
   }, [songQuery])
 
+  // Move focus into the modal on open, and back to whatever had focus before (the "Start from…"
+  // trigger, in practice) on close.
+  useEffect(() => {
+    if (isOpen) {
+      previouslyFocusedRef.current = document.activeElement as HTMLElement | null
+      inputRef.current?.focus()
+    } else {
+      previouslyFocusedRef.current?.focus?.()
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, onClose])
+
   function handleSelect(seedSource: SeedSource) {
     dj.startSession(seedSource)
     onClose()
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/80 p-4">
-      <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-y-auto rounded-2xl border border-white/5 bg-neutral-900 p-6">
+    <div
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+      aria-hidden={!isOpen}
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/80 p-4 transition-opacity duration-200 ${
+        isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+      }`}
+    >
+      <div
+        role="dialog"
+        aria-label="Start a session from…"
+        className={`flex max-h-[85vh] w-full max-w-lg flex-col overflow-y-auto rounded-2xl border border-white/5 bg-neutral-900 p-6 transition-all duration-200 ${
+          isOpen ? 'translate-y-0 scale-100' : 'translate-y-2 scale-95'
+        }`}
+      >
         <div className="mb-1 flex items-center justify-between">
           <h2 className="text-lg font-bold text-neutral-50">Start from…</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
+            aria-label="Close"
             title="Close"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 hover:bg-white/5 hover:text-neutral-100"
           >
             ✕
           </button>
@@ -51,7 +91,7 @@ export function SeedPicker({ onClose }: SeedPickerProps) {
           <section>
             <div className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">A song</div>
             <input
-              autoFocus
+              ref={inputRef}
               value={songQuery}
               onChange={(e) => setSongQuery(e.target.value)}
               placeholder="Search songs or artists"

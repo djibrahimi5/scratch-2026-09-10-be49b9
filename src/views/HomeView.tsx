@@ -50,7 +50,7 @@ export function HomeView() {
       >
         <div>
           <div className="mb-2 text-xs font-bold uppercase tracking-widest text-accent">
-            AI DJ
+            DJ
           </div>
           <div className="text-3xl font-bold text-neutral-50">Start a session</div>
           <div className="mt-2 max-w-md text-sm text-neutral-400">

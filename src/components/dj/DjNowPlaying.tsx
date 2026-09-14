@@ -46,23 +46,27 @@ export function DjNowPlaying({ trackId, isSaved, onSave }: DjNowPlayingProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={player.togglePlay}
+            aria-label={player.isPlaying ? 'Pause' : 'Play'}
+            title={player.isPlaying ? 'Pause' : 'Play'}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-lg text-neutral-950"
           >
             {player.isPlaying ? '❚❚' : '▶'}
           </button>
           <button
             onClick={player.skipCurrent}
-            className="text-sm font-semibold text-neutral-400 hover:text-neutral-100"
+            aria-label="Skip track"
             title="Skip"
+            className="text-sm font-semibold text-neutral-400 hover:text-neutral-100"
           >
             Skip ▶▶
           </button>
           <button
             onClick={onSave}
+            aria-label={isSaved ? 'In Library' : 'Save to Library'}
+            title={isSaved ? 'In Library' : 'Save to Library'}
             className={`text-sm font-semibold ${
               isSaved ? 'text-accent' : 'text-neutral-400 hover:text-neutral-100'
             }`}
-            title={isSaved ? 'In Library' : 'Save to Library'}
           >
             {isSaved ? '✓ Saved' : '+ Save'}
           </button>

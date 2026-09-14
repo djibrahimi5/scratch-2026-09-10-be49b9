@@ -45,34 +45,41 @@ export function UpNextQueue({ upcoming, phases }: UpNextQueueProps) {
     return result
   }, [upcoming, phaseByTrackId, phases])
 
-  if (groups.length === 0) return null
-
   return (
     <div className="rounded-2xl border border-white/5 bg-neutral-900 p-5">
       <div className="mb-4 text-xs font-bold uppercase tracking-widest text-neutral-500">
         Up next
       </div>
-      <div className="flex flex-col gap-6">
-        {groups.map((group) => (
-          <div key={group.phase.index}>
-            <div className="mb-1 flex items-center justify-between">
-              <div className="text-sm font-semibold text-neutral-200">{group.phase.name}</div>
-              <div
-                className={`text-xs font-medium ${
-                  group.phase.status === 'active' ? 'text-accent' : 'text-neutral-500'
-                }`}
-              >
-                {STATUS_LABEL[group.phase.status]}
+      {groups.length === 0 ? (
+        <p className="text-sm text-neutral-500">
+          Nothing left in the queue — this is the last track of the session.
+        </p>
+      ) : (
+        // Keyed off the actual track-id sequence so a replan (or any other queue change) remounts
+        // this list and replays the fade-in — the goal is for a replan to read as a deliberate
+        // decision rather than an instant, glitch-looking swap.
+        <div key={upcoming.join(',')} className="dj-fade-in flex flex-col gap-6">
+          {groups.map((group) => (
+            <div key={group.phase.index}>
+              <div className="mb-1 flex items-center justify-between">
+                <div className="text-sm font-semibold text-neutral-200">{group.phase.name}</div>
+                <div
+                  className={`text-xs font-medium ${
+                    group.phase.status === 'active' ? 'text-accent' : 'text-neutral-500'
+                  }`}
+                >
+                  {STATUS_LABEL[group.phase.status]}
+                </div>
+              </div>
+              <div className="flex flex-col">
+                {group.trackIds.map((trackId) => (
+                  <TrackRow key={trackId} trackId={trackId} isSaved={dj.isSaved(trackId)} />
+                ))}
               </div>
             </div>
-            <div className="flex flex-col">
-              {group.trackIds.map((trackId) => (
-                <TrackRow key={trackId} trackId={trackId} isSaved={dj.isSaved(trackId)} />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
