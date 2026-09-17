@@ -64,3 +64,26 @@ export function loadSessionState(): SessionState | null {
 export function saveSessionState(state: SessionState): void {
   writeJson('djSession', state)
 }
+
+export function clearSessionState(): void {
+  try {
+    localStorage.removeItem(PREFIX + 'djSession')
+  } catch {
+    // localStorage unavailable — fail silently, nothing user-visible depends on it
+  }
+}
+
+// Prefix-based: every key this module writes lives under PREFIX, so wiping all of them is
+// equivalent to a first-visit state without needing to name each one individually here.
+export function clearAllPersistedState(): void {
+  try {
+    const keys: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key?.startsWith(PREFIX)) keys.push(key)
+    }
+    keys.forEach((key) => localStorage.removeItem(key))
+  } catch {
+    // localStorage unavailable — fail silently, nothing user-visible depends on it
+  }
+}

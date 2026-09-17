@@ -23,7 +23,14 @@ import {
 import { CATALOG, FRIEND, PLAYLISTS } from '@/data'
 import { usePlayer } from './PlayerContext'
 import { useLibrary } from './LibraryContext'
-import { loadLastSession, loadSessionState, saveLastSession, saveSessionState } from '@/lib/storage'
+import {
+  clearAllPersistedState,
+  clearSessionState,
+  loadLastSession,
+  loadSessionState,
+  saveLastSession,
+  saveSessionState,
+} from '@/lib/storage'
 
 // Demo-fixture accommodation (see PHASE_3_NOTES.md): the 120-track catalog only keeps the
 // session-level pool ratio within tolerance for seeds 1-5, so the runtime seed is drawn from a
@@ -43,6 +50,8 @@ type DjSessionContextValue = {
   lastTransitionEvent: TransitionEvent | null
   seedLabel: string | null
   startSession: (seedSource?: SeedSource) => void
+  endSession: () => void
+  resetDemo: () => void
   saveCurrent: () => void
   isSaved: (trackId: string) => boolean
 }
@@ -238,6 +247,33 @@ export function DjSessionProvider({ children }: { children: ReactNode }) {
     player.setDjPlayback(firstId)
   }, [player, since])
 
+  // Returns to the no-session state (DjView renders DjIdle) without going through the engine's
+  // own 'ended' status — that status is for a session that ran its course and shows
+  // SessionSummary, which is a different exit than "leave whenever, no strings attached." Clears
+  // pendingAdvanceRef too: without that, a skip/complete that was mid-flight when this fires
+  // could still land its follow-up trackStart against whatever session replaces this one.
+  const endSession = useCallback(() => {
+    pendingAdvanceRef.current = null
+    setLastTransitionEvent(null)
+    setSession(null)
+    player.setDjPlayback(null)
+    clearSessionState()
+  }, [player])
+
+  // Full first-visit reset: ends any active session, then clears the React state each provider
+  // owns for its own persisted slice (library additions, demo speed) since removing the storage
+  // key alone wouldn't update state already loaded into memory, plus the local rotation cursor.
+  const resetDemo = useCallback(() => {
+    pendingAdvanceRef.current = null
+    setLastTransitionEvent(null)
+    setSession(null)
+    player.setDjPlayback(null)
+    player.resetDemoSpeed()
+    library.resetLibrary()
+    rotationRef.current = 0
+    clearAllPersistedState()
+  }, [player, library])
+
   const currentTrackId = player.mode === 'dj' ? player.currentTrackId : null
 
   const saveCurrent = useCallback(() => {
@@ -269,6 +305,8 @@ export function DjSessionProvider({ children }: { children: ReactNode }) {
       lastTransitionEvent,
       seedLabel,
       startSession,
+      endSession,
+      resetDemo,
       saveCurrent,
       isSaved,
     }),
@@ -281,6 +319,8 @@ export function DjSessionProvider({ children }: { children: ReactNode }) {
       lastTransitionEvent,
       seedLabel,
       startSession,
+      endSession,
+      resetDemo,
       saveCurrent,
       isSaved,
     ],

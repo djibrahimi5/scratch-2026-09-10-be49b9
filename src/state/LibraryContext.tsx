@@ -6,6 +6,7 @@ type LibraryContextValue = {
   libraryIds: string[]
   isInLibrary: (trackId: string) => boolean
   addToLibrary: (trackId: string) => void
+  resetLibrary: () => void
 }
 
 const LibraryContext = createContext<LibraryContextValue | null>(null)
@@ -31,9 +32,15 @@ export function LibraryProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  // In-memory reset only — persisted storage is cleared centrally by
+  // DjSessionContext.resetDemo via clearAllPersistedState.
+  const resetLibrary = useCallback(() => {
+    setAdditions([])
+  }, [])
+
   const value = useMemo(
-    () => ({ libraryIds, isInLibrary, addToLibrary }),
-    [libraryIds, isInLibrary, addToLibrary],
+    () => ({ libraryIds, isInLibrary, addToLibrary, resetLibrary }),
+    [libraryIds, isInLibrary, addToLibrary, resetLibrary],
   )
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>

@@ -17,6 +17,15 @@ export function DjNowPlaying({ trackId, isSaved, onSave }: DjNowPlayingProps) {
   const track = CATALOG.tracksById.get(trackId)
   if (!track) return null
   const artist = CATALOG.artistsById.get(track.artistId)
+
+  // A single click, not "end then separately start": endSession clears pendingAdvanceRef, so a
+  // skip/complete that was mid-flight when this fires can't land its follow-up trackStart against
+  // the session that replaces it.
+  function handleNewSession() {
+    dj.endSession()
+    dj.startSession()
+  }
+
   const progressPct =
     player.durationSec && player.currentTrackId === trackId
       ? Math.min(100, (player.positionSec / player.durationSec) * 100)
@@ -69,6 +78,28 @@ export function DjNowPlaying({ trackId, isSaved, onSave }: DjNowPlayingProps) {
             }`}
           >
             {isSaved ? '✓ Saved' : '+ Save'}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3 text-xs text-neutral-500">
+          <button
+            onClick={handleNewSession}
+            aria-label="Start a new session"
+            title="End this session and start a new one"
+            className="hover:text-neutral-300"
+          >
+            New session
+          </button>
+          <span aria-hidden="true" className="text-neutral-700">
+            ·
+          </span>
+          <button
+            onClick={() => dj.endSession()}
+            aria-label="End session"
+            title="End this session and return to the start screen"
+            className="hover:text-neutral-300"
+          >
+            End session
           </button>
         </div>
       </div>

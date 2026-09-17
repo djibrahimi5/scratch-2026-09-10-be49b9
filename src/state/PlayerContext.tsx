@@ -22,6 +22,7 @@ type PlayerContextValue = {
   play: (trackId: string) => void
   togglePlay: () => void
   setDemoSpeed: (speed: DemoSpeed) => void
+  resetDemoSpeed: () => void
   /** Used by DJ mode to drive playback from externally-managed session state. */
   setDjPlayback: (trackId: string | null) => void
   /** Called whenever the current track reaches the end of its simulated duration. */
@@ -78,6 +79,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     saveDemoSpeed(speed)
   }, [])
 
+  // In-memory reset only — persisted storage is cleared centrally by
+  // DjSessionContext.resetDemo via clearAllPersistedState.
+  const resetDemoSpeed = useCallback(() => {
+    setDemoSpeedState(1)
+  }, [])
+
   const setDjPlayback = useCallback((trackId: string | null) => {
     setMode('dj')
     setCurrentTrackId(trackId)
@@ -118,6 +125,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       play,
       togglePlay,
       setDemoSpeed,
+      resetDemoSpeed,
       setDjPlayback,
       onTrackComplete,
       skipCurrent,
@@ -133,6 +141,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       play,
       togglePlay,
       setDemoSpeed,
+      resetDemoSpeed,
       setDjPlayback,
       onTrackComplete,
       skipCurrent,

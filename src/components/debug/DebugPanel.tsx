@@ -26,10 +26,11 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   )
 }
 
-// This panel is strictly read-only: it only ever calls getDebugSnapshot and renders. It must
-// never call recordEvent (that stays callable only from DjSessionContext) and never touches
-// LibraryContext, so it can't be a route by which something outside the provider mutates the
-// session or the library.
+// This panel is read-only for engine internals: it only ever calls getDebugSnapshot to render,
+// and never calls recordEvent directly (that stays callable only from DjSessionContext). Its one
+// exception is "Reset demo" below — an explicit, confirmed escape hatch that hands the app back to
+// DjSessionContext.resetDemo to clear all local state, for resetting between walkthroughs rather
+// than as a product feature.
 export function DebugPanel() {
   const dj = useDjSession()
   const [isOpen, setIsOpen] = useState(false)
@@ -59,6 +60,15 @@ export function DebugPanel() {
   }, [isOpen])
 
   const snapshot = dj.session ? getDebugSnapshot(dj.session) : null
+
+  function handleResetDemo() {
+    const confirmed = window.confirm(
+      'Reset the demo? This ends any active session and clears your saved library additions and demo speed — back to a first-visit state. This cannot be undone.',
+    )
+    if (confirmed) {
+      dj.resetDemo()
+    }
+  }
 
   return (
     <>
@@ -97,6 +107,18 @@ export function DebugPanel() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
+          <Section title="Demo controls">
+            <p className="mb-3 text-xs text-neutral-500">
+              Clears saved library additions, ends any active session, and resets demo speed —
+              back to a first-visit state. A demo reset tool, not a product feature.
+            </p>
+            <button
+              onClick={handleResetDemo}
+              className="rounded-full border border-accent/40 px-4 py-2 text-xs font-semibold text-accent hover:bg-accent/10"
+            >
+              Reset demo
+            </button>
+          </Section>
           {!snapshot ? (
             <div className="p-5 text-sm text-neutral-500">
               No active DJ session — start one from the DJ tab to see live engine internals.
