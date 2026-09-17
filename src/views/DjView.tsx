@@ -10,11 +10,11 @@ export function DjView() {
   const dj = useDjSession()
 
   if (!dj.session) {
-    return <DjIdle onStart={dj.startSession} />
+    return <DjIdle onStart={() => dj.startSession()} />
   }
 
   if (dj.session.status === 'ended') {
-    return <SessionSummary state={dj.session} onRestart={dj.startSession} />
+    return <SessionSummary state={dj.session} onRestart={() => dj.startSession()} />
   }
 
   return (

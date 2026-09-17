@@ -68,6 +68,19 @@ export function resolveSeedLabel(seedSource: SeedSource): string | null {
   }
 }
 
+const SEED_SOURCE_KINDS = ['default', 'song', 'artist', 'library', 'playlist', 'friendPlaylist'] as const
+
+// Guards against startSession being passed directly as an event handler (e.g. `onClick={dj.startSession}`),
+// where React would otherwise call it with a SyntheticEvent in place of a SeedSource.
+function isSeedSource(value: unknown): value is SeedSource {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'kind' in value &&
+    (SEED_SOURCE_KINDS as readonly string[]).includes((value as { kind: unknown }).kind as string)
+  )
+}
+
 const DjSessionContext = createContext<DjSessionContextValue | null>(null)
 
 function currentTrackOf(state: SessionState): string | null {
@@ -210,7 +223,8 @@ export function DjSessionProvider({ children }: { children: ReactNode }) {
     }
   }, [session, library])
 
-  const startSession = useCallback((seedSource: SeedSource = { kind: 'default' }) => {
+  const startSession = useCallback((seedSourceArg?: SeedSource) => {
+    const seedSource: SeedSource = isSeedSource(seedSourceArg) ? seedSourceArg : { kind: 'default' }
     const seed = DEMO_SEEDS[rotationRef.current % DEMO_SEEDS.length]
     rotationRef.current += 1
     sessionStartRef.current = Date.now()
